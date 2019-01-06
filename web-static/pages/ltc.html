@@ -1,0 +1,209 @@
+<html>
+<head>
+<title>TripleZen | Mining Portal</title>
+<meta charset="iso-8859-1">
+<link rel="stylesheet" href="../layout/styles/layout.css" type="text/css">
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+<script type="text/javascript">
+
+// PUT YOUR P2POOL SERVER'S ADDRESS HERE:
+var servaddr = 'http://triplezen.tk:9327';
+
+$(document).ajaxError(function(event, request, settings, err) {
+	alert("error: " + settings.url + ": " + err.message);
+});
+
+$.get(servaddr + '/rate', function(data) {
+	$('#hashrate').html(data / 1000000000);
+});
+
+$.getJSON(servaddr + '/current_payouts', function(pays) {
+	var arr = new Array;
+	var total = 0;
+	for(var i in pays) {
+		arr.push(i);
+	}
+	arr.sort(function(a, b) { return (pays[b] - pays[a]); });
+	for(var j in arr) {
+		var addr = arr[j];
+		addr = addr.replace(/^.*: /, "");
+		$('#payouts tr:last').after('<tr><td><a href="http://explorer.litecoin.net/address/' + addr + '">' + arr[j] + '</a></td><td>' +
+			pays[arr[j]] + '</td></tr>');
+		total += pays[arr[j]];
+	}
+	$('#payouts tr:last').after('<tr><td><b>Total:</b></td><td><b>' + total.toFixed(8) + '</b></td></tr>');
+});
+
+$.getJSON(servaddr + '/recent_blocks', function(blocks) {
+	for(var i in blocks) {
+		var ts = new Date(1000 * blocks[i]['ts']);
+		var padded_hash = blocks[i]['hash'];
+		while(padded_hash.length < 64) {
+			padded_hash = '0' + padded_hash;
+		}
+		$('#blocks tr:last').after('<tr><td>' + ts.toString() + 
+			'</td><td><a href="http://chainz.cryptoid.info/dgb/block.dws?'
+			+ padded_hash + '">' + padded_hash + '</a></td></tr>');
+	}
+});
+
+</script>
+</head>
+<body>
+<div class="wrapper row0">
+  <div id="topbar" class="clear">
+<!--    <form action="#" method="post">
+      <fieldset>
+        <legend>Search:</legend>
+        <input type="text" value="Search Our Website&hellip;" placeholder="Search Our Website&hellip;">
+        <input type="submit" id="sf_submit" value="submit">
+      </fieldset>
+    </form>
+    <ul>
+      <li><a href="#">Sign Up</a></li>
+      <li><a href="#">Login</a></li>
+      <li><a href="#">RSS Feeds</a></li>
+    </ul>
+	-->
+  </div>
+</div>
+<div class="wrapper row1">
+  <header id="header" class="clear">
+    <div id="hgroup">
+      <h1><a href="https://triplezen.tk">T<span>riple</span>Z<span>en</span></a></h1>
+      <h2>Mining Portal</h2>
+    </div>
+    <nav>
+      <ul class="clear">
+        <li class="active"><a href="dgbscr.html">Digibyte</a><span>Scrypt</span>
+		<!--<ul>
+            <li><a href="dgbscr.html">Zen Server</a></li>
+			<li><a href="dgbscr2.html">P2pool</a></li>
+            
+          </ul>-->
+		  </li>
+		<li><a href="http://triplezen.tk:5027/static/pages/dgbsha.html">Digibyte</a><span>Sha256d</span>
+		<!--<ul>
+            <li><a href="http://triplezen.tk:5027/static/pages/dgbsha.html">Zen Server</a></li>
+			<li><a href="dgbsha.html">P2pool</a></li>
+            
+          </ul>-->
+		  </li>
+		   <li><a href="http://triplezen.tk:5029/static/pages/dgbske.html">Digibyte</a><span>Skein</span>
+		<!--<ul>
+            <li><a href="http://triplezen.tk:5027/static/pages/dgbsha.html">Zen Server</a></li>
+			<li><a href="">P2pool</a></li>
+            
+          </ul>-->
+		  </li>
+		
+        <!--<li><a href="btc.html">Bitcoin</a><span>P2pool</span></li>-->
+        <li><a href="http://triplezen.tk:9327/static/pages/ltc.html">Litecoin</a><span>P2pool</span></li>
+<!--        <li><a href="#">DropDown</a><span>Test Text Here</span>
+		<li><a href=".html">Gallery</a><span>Test Text Here</span></li>
+          
+        </li>-->
+        
+        
+      </ul>
+    </nav>
+  </header>
+</div>
+<!-- content -->
+<div class="wrapper row3">
+  <div id="container" class="clear"> 
+    <!-- content body --> 
+    <!-- ########################################################################################## --> 
+    <!-- ########################################################################################## -->
+<h1>Pool Stats</h1>
+<ul>
+	<li>
+		Total pool Ghash/sec: <span id="hashrate"></span>
+	</li>
+	<li>
+		Pool Fee: 1.0%
+	</li>
+	<li>
+		Payouts if block was found NOW: 
+		<table border="1" id="payouts">
+			<tr>
+				<th>address</th>
+				<th>amount in LTC</th>
+			</tr>
+		</table>
+	</li>
+	<li>
+		Blocks found in the past 12hrs, any blocks before that will not show here: <br />
+		<table border="1" id="blocks">
+			<tr>
+				<th>time</th>
+				<th>hash</th>
+			</tr>
+		</table>
+	</li>
+</ul>
+<p>Pool URL: stratum+tcp://triplezen.tk:9327<br>
+	Alternate: stratum+tcp://zenfarm.tk:9327<br>
+	User ID: Your Litecoin Core Wallet Address<br>
+	Password: x<br>
+&nbsp;<br>
+	Do not use worker names (e.g. DGB_Address.worker)
+	
+	</p>
+    <!-- ########################################################################################## --> 
+    <!-- ########################################################################################## --> 
+    <!-- / content body --> 
+ 
+<!-- Footer -->
+<div id="info" class="clear">
+      <section class="one_third">
+        <h2></h2>
+        <ul>
+          <li>
+            
+            <blockquote>&hellip;</blockquote>
+          </li>
+          <li>
+            <p class=""><strong></strong></p>
+            <blockquote>&hellip;</blockquote>
+			<p class=""><strong>farsider350</strong><br>
+				<a href="mailto:farsider350@triplezen.tk">Contact Us</a></p>
+          </li>
+        </ul>
+        <p><a href="#"><!--&raquo;--></a></p>
+      </section>
+      <section class="two_third">
+<!--        <h2>Important Information</h2>
+        <ul>
+          <li>
+            <figure class="clear"><img src="../images/aus.gif" alt="">
+              <figcaption>
+                <h2>Latency</h2>
+                <p>Our servers are based in Australia, anybody connecting from outside Australia should check your 
+				latency first.</p>
+				-->
+				<footer><a href="#"></a></footer>
+              </figcaption>
+            </figure>
+          </li>
+ <!--         <li>
+            <figure class="clear"><img src="images/demo/160x120.gif" alt="">
+              <figcaption>
+                <h2>Project Name Here</h2>
+                <p>Sednulla nam nibh a nibh eu urna facinia mauris tibulus sit urna. Vitaerisus lobortis proin elit et curabituris elit estibulum cursus iacus orci. Dignis simmorbi rhoncus sed netus ligula conseque netus nulla.</p>
+                <footer><a href="#">View This Project &raquo;</a></footer>
+              </figcaption>
+            </figure>
+          </li>-->
+        </ul>
+      </section>
+    </div>
+    <!-- / Info --> 
+    <!-- ########################################################################################## --> 
+    <!-- ########################################################################################## --> 
+    <!-- / content body --> 
+  </div>
+</div>
+	
+</body>
+</html>

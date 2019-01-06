@@ -1,0 +1,5 @@
+
+{
+  "address": "SbMckopwsXaBkiPZ6hvdPiAy8V2acqs13M",
+  "redeemScript": "5121021eaed5096945fea8d48e767bb8b3819a849bde74e152cb18be1f7d090b183c872103544f3880caf61230a7f18666f7a9e0648e0459ee731bfd3c0a268e949ec03f7f52ae"
+}
