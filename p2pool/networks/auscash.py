@@ -13,7 +13,7 @@ MIN_TARGET = 0
 MAX_TARGET = 2**256//2**20 - 1
 PERSIST = True
 WORKER_PORT = 2016
-BOOTSTRAP_ADDRS = '161.43.201.255', '139.180.181.92'.split(' ')
+BOOTSTRAP_ADDRS = '139.180.181.92'.split(' ')
 ANNOUNCE_CHANNEL = '#p2pool-auscash'
 VERSION_CHECK = lambda v: None if 170401 <= v else 'AustraliaCash version too old. Upgrade to 0.17.4.1 or newer!'
 VERSION_WARNING = lambda v: None
