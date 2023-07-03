@@ -649,6 +649,7 @@ def run():
             parser.error('merged url netloc must contain an "@"')
         userpass, new_netloc = s.netloc.rsplit('@', 1)
         return urlparse.urlunsplit(s._replace(netloc=new_netloc)), userpass, paddr
+    merged_urls = map(separate_url, args.merged_urls)
     merged_urls += [separate_url(x, addr=True) for x in args.merged_urls_addr]
     
     if args.logfile is None:
