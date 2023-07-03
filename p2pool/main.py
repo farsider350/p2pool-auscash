@@ -484,6 +484,9 @@ def run():
     parser.add_argument('--merged',
         help='call getauxblock on this url to get work for merged mining (example: http://ncuser:ncpass@127.0.0.1:10332/)',
         type=str, action='append', default=[], dest='merged_urls')
+    parser.add_argument('--merged_addr',
+        help='call createauxblock/submitauxblock on this url to get work for merged mining and get payout address (example: payout%http://ncuser:ncpass@127.0.0.1:10332/)',
+        type=str, action='append', default=[], dest='merged_urls_addr')
     parser.add_argument('--give-author', metavar='DONATION_PERCENTAGE',
         help='donate this percentage of work towards the development of p2pool (default: 1.0)',
         type=float, action='store', default=1.0, dest='donation_percentage')
@@ -634,13 +637,19 @@ def run():
     else:
         args.pubkey_hash = None
     
-    def separate_url(url):
+    def separate_url(url, addr=False):
+        paddr = None
+        if addr:
+            if '%' not in url:
+                parser.error('payoutaddress not specified in merged url')
+            paddr, url = url.split('%')
+            print("Found payout %s for %s" % (paddr, url))
         s = urlparse.urlsplit(url)
         if '@' not in s.netloc:
             parser.error('merged url netloc must contain an "@"')
         userpass, new_netloc = s.netloc.rsplit('@', 1)
-        return urlparse.urlunsplit(s._replace(netloc=new_netloc)), userpass
-    merged_urls = map(separate_url, args.merged_urls)
+        return urlparse.urlunsplit(s._replace(netloc=new_netloc)), userpass, paddr
+    merged_urls += [separate_url(x, addr=True) for x in args.merged_urls_addr]
     
     if args.logfile is None:
         args.logfile = os.path.join(datadir_path, 'log')

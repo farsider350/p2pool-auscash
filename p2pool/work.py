@@ -74,10 +74,13 @@ class WorkerBridge(worker_interface.WorkerBridge):
         self.merged_work = variable.Variable({})
         
         @defer.inlineCallbacks
-        def set_merged_work(merged_url, merged_userpass):
+        def set_merged_work(merged_url, merged_userpass, merged_address):
             merged_proxy = jsonrpc.HTTPProxy(merged_url, dict(Authorization='Basic ' + base64.b64encode(merged_userpass)))
             while self.running:
-                auxblock = yield deferral.retry('Error while calling merged getauxblock on %s:' % (merged_url,), 30)(merged_proxy.rpc_getauxblock)()
+                if merged_address:
+                    auxblock = yield deferral.retry('Error while calling merged createauxblock on %s:' % (merged_url,), 30)(merged_proxy.rpc_createauxblock)(merged_address)
+                else:
+                    auxblock = yield deferral.retry('Error while calling merged getauxblock on %s:' % (merged_url,), 30)(merged_proxy.rpc_getauxblock)()
                 target = auxblock['target'] if 'target' in auxblock else auxblock['_target']
                 self.merged_work.set(math.merge_dicts(self.merged_work.value, {auxblock['chainid']: dict(
                     hash=int(auxblock['hash'], 16),
@@ -85,8 +88,8 @@ class WorkerBridge(worker_interface.WorkerBridge):
                     merged_proxy=merged_proxy,
                 )}))
                 yield deferral.sleep(1)
-        for merged_url, merged_userpass in merged_urls:
-            set_merged_work(merged_url, merged_userpass)
+        for merged_url, merged_userpass, merged_address in merged_urls:
+            set_merged_work(merged_url, merged_userpass, merged_address)
         
         @self.merged_work.changed.watch
         def _(new_merged_work):
@@ -431,7 +434,11 @@ class WorkerBridge(worker_interface.WorkerBridge):
             for aux_work, index, hashes in mm_later:
                 try:
                     if pow_hash <= aux_work['target'] or p2pool.DEBUG:
-                        df = deferral.retry('Error submitting merged block: (will retry)', 10, 10)(aux_work['merged_proxy'].rpc_getauxblock)(
+                        if aux_work['merged_address']:
+                            sub_meth = aux_work['merged_proxy'].rpc_submitauxblock
+                        else:
+                            sub_meth = aux_work['merged_proxy'].rpc_getauxblock
+                        df = deferral.retry('Error submitting merged block: (will retry)', 10, 10)(sub_meth)(
                             pack.IntType(256, 'big').pack(aux_work['hash']).encode('hex'),
                             bitcoin_data.aux_pow_type.pack(dict(
                                 merkle_tx=dict(
