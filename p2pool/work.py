@@ -86,6 +86,7 @@ class WorkerBridge(worker_interface.WorkerBridge):
                     hash=int(auxblock['hash'], 16),
                     target='p2pool' if target == 'p2pool' else pack.IntType(256).unpack(target.decode('hex')),
                     merged_proxy=merged_proxy,
+                    merged_address=merged_address,
                 )}))
                 yield deferral.sleep(1)
         for merged_url, merged_userpass, merged_address in merged_urls:
